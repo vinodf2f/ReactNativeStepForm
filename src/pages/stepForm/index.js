@@ -1,22 +1,18 @@
-import React, {useReducer} from 'react';
+import React from 'react';
 
 import {StepOne, StepTwo, ReviewStep} from './components';
-import {reducer, initialState} from './reducer';
-import StepperHoc from '../../components/Stepper';
+import {useSelector} from 'react-redux';
 
-export default function StepForm() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
+function StepForm() {
+  const stepName = useSelector(state => state.stepName);
   const types = {
     StepOne: StepOne,
     StepTwo: StepTwo,
     ReviewStep: ReviewStep,
   };
-  let $Component = types[state.stepName];
+  let $Component = types[stepName];
 
-  return (
-    <StepperHoc activeStep={state.stepName}>
-      <$Component storeProps={state} dispatch={dispatch} />
-    </StepperHoc>
-  );
+  return <$Component />;
 }
+
+export default StepForm;

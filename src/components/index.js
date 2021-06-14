@@ -1,4 +1,5 @@
 import FormikInput from './formik/FormikInputField';
+import FormikCheckbox from './formik/FormikCheckbox';
 import CustomButton from './Button';
 
-export {FormikInput, CustomButton};
+export {FormikInput, FormikCheckbox, CustomButton};

@@ -1,34 +1,45 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Formik, Field} from 'formik';
+import {useDispatch, useSelector} from 'react-redux';
 //components
-import {CustomButton, FormikInput} from '../../../components';
-//Validation, utils
+import {FormikInput} from '../../../components';
+//Validation, utils, API
 import {stepOneValidationSchema} from '../validationSchema';
-import {actionTypes} from '../reducer';
+import {actionTypes} from '../reducer2';
 import {formatQuestionToStore} from '../utils';
+import {mockSubmit} from '../../../API';
+import StepperHoc, {STEPS} from '../../../components/Stepper';
 
-//set questions here
-const initialValues = {question1: '', question2: ''};
-const StepOne = ({storeProps, dispatch}) => {
+const StepOne = () => {
+  const dispatch = useDispatch();
+  const questions = useSelector(state => state.questions);
+
   const handleNext = values => {
-    dispatch({
-      type: actionTypes.NEXT_STEP,
-      payload: {
-        stepNo: 2,
-        stepName: 'StepTwo',
-        questions: formatQuestionToStore(values),
-      },
-    });
+    try {
+      mockSubmit(values).then(data => {
+        dispatch({
+          type: actionTypes.NEXT_STEP,
+          payload: {
+            stepNo: 2,
+            stepName: STEPS[1],
+            questions: formatQuestionToStore(values),
+          },
+        });
+      });
+    } catch (error) {
+      alert(JSON.stringify(error));
+    }
   };
+
   return (
-    <View style={styles.stepContainer}>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={stepOneValidationSchema}
-        onSubmit={handleNext}>
-        {({values, handleSubmit}) => (
-          <>
+    <Formik
+      initialValues={Object.assign({}, ...questions)}
+      validationSchema={stepOneValidationSchema}
+      onSubmit={handleNext}>
+      {({handleSubmit}) => (
+        <StepperHoc onNext={handleSubmit} showPrevious={false}>
+          <View style={styles.stepContainer}>
             <View style={styles.questionBox}>
               <Text style={styles.questionLabel}>Question 1</Text>
               <Field
@@ -45,15 +56,10 @@ const StepOne = ({storeProps, dispatch}) => {
                 placeholder="question2"
               />
             </View>
-            <CustomButton
-              label="NEXT"
-              onPress={handleSubmit}
-              style={styles.button}
-            />
-          </>
-        )}
-      </Formik>
-    </View>
+          </View>
+        </StepperHoc>
+      )}
+    </Formik>
   );
 };
 
@@ -62,20 +68,14 @@ export default StepOne;
 const styles = StyleSheet.create({
   stepContainer: {
     flex: 1,
-    alignItems: 'center',
     paddingHorizontal: 20,
   },
   questionLabel: {
     fontSize: 16,
     marginVertical: 10,
   },
-
   questionBox: {
     width: '100%',
     marginVertical: 10,
-  },
-
-  button: {
-    marginTop: 50,
   },
 });
